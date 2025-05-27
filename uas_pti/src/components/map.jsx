@@ -8,26 +8,41 @@ function Map() {
 
   const [playerPos, setPlayerPos] = useState({ x: 400, y: 300 });
   const [cameraPos, setCameraPos] = useState({ x: 0, y: 0 });
+  const [viewportSize, setViewportSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
 
   const mapRef = useRef(null);
   const playerRef = useRef(null);
 
   const WORLD_WIDTH = 3700;
   const WORLD_HEIGHT = 1954;
-  const VIEWPORT_WIDTH = 800;
-  const VIEWPORT_HEIGHT = 600;
   const PLAYER_SIZE = 40;
   const MOVE_SPEED = 8;
 
+  // Update viewport size saat window resize
   useEffect(() => {
-    const cameraCenterX = playerPos.x - VIEWPORT_WIDTH / 2;
-    const cameraCenterY = playerPos.y - VIEWPORT_HEIGHT / 2;
+    const handleResize = () => {
+      setViewportSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
 
-    const clampedX = Math.max(0, Math.min(WORLD_WIDTH - VIEWPORT_WIDTH, cameraCenterX));
-    const clampedY = Math.max(0, Math.min(WORLD_HEIGHT - VIEWPORT_HEIGHT, cameraCenterY));
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const cameraCenterX = playerPos.x - viewportSize.width / 2;
+    const cameraCenterY = playerPos.y - viewportSize.height / 2;
+
+    const clampedX = Math.max(0, Math.min(WORLD_WIDTH - viewportSize.width, cameraCenterX));
+    const clampedY = Math.max(0, Math.min(WORLD_HEIGHT - viewportSize.height, cameraCenterY));
 
     setCameraPos({ x: clampedX, y: clampedY });
-  }, [playerPos]);
+  }, [playerPos, viewportSize]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -71,7 +86,14 @@ function Map() {
   return (
     <div className="game-container">
       <div className="game-viewport" ref={mapRef}>
-        <div className="game-world map-background" style={{ transform: `translate(-${cameraPos.x}px, -${cameraPos.y}px)` }}>
+        <div 
+          className="game-world map-background" 
+          style={{ 
+            transform: `translate(-${cameraPos.x}px, -${cameraPos.y}px)`,
+            width: `${WORLD_WIDTH}px`,
+            height: `${WORLD_HEIGHT}px`
+          }}
+        >
           <div className="player" ref={playerRef} style={{ left: playerPos.x, top: playerPos.y }}>
             <img src={`/assets/avatar/${characterName}.png`} alt={characterName} className="player-sprite" draggable={false} />
             <div className="player-shadow" />
@@ -94,8 +116,8 @@ function Map() {
               style={{
                 left: (cameraPos.x / WORLD_WIDTH) * 100 + "%",
                 top: (cameraPos.y / WORLD_HEIGHT) * 100 + "%",
-                width: (VIEWPORT_WIDTH / WORLD_WIDTH) * 100 + "%",
-                height: (VIEWPORT_HEIGHT / WORLD_HEIGHT) * 100 + "%",
+                width: (viewportSize.width / WORLD_WIDTH) * 100 + "%",
+                height: (viewportSize.height / WORLD_HEIGHT) * 100 + "%",
               }}
             />
           </div>
