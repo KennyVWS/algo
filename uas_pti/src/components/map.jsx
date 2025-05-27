@@ -12,8 +12,8 @@ function Map() {
   const mapRef = useRef(null);
   const playerRef = useRef(null);
 
-  const WORLD_WIDTH = 1600;
-  const WORLD_HEIGHT = 1200;
+  const WORLD_WIDTH = 3700;
+  const WORLD_HEIGHT = 1954;
   const VIEWPORT_WIDTH = 800;
   const VIEWPORT_HEIGHT = 600;
   const PLAYER_SIZE = 40;
